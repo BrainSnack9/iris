@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Iris — Connecting account</title><style>
+:root{--bg:#0f1226;--fg:#e9eaf4;--mut:#9fa3c2;--acc:#7c8cff;--card:#171b3a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+main{max-width:560px;margin:0 auto;padding:72px 20px}h1{font-size:24px;margin:0 0 6px}.sub{color:var(--mut);margin:0 0 24px}
+.card{background:var(--card);border-radius:12px;padding:18px 20px}a{color:var(--acc)}.ko{color:var(--mut);font-size:14px}
+.logo{width:28px;height:28px;border-radius:50%;background:conic-gradient(#f06a6a,#f5a524,#4cc38a,#7c8cff,#c77dff,#f06a6a);margin-bottom:16px}
+</style></head><body><main><div class="logo"></div><h1 id="t">Connecting your account…</h1><p class="sub" id="s">Returning to the Iris dashboard on this computer.</p>
+<div class="card"><p id="m">If nothing happens, <a id="go" href="#">continue to the dashboard</a>.</p>
+<p class="ko" id="k">Iris 대시보드(이 컴퓨터의 localhost:8767)로 돌아갑니다. 인가 코드는 이 페이지에 저장되지 않고 대시보드로만 전달됩니다.</p></div></main>
+<script>
+// Meta OAuth redirect target (https://brainsnack9.github.io/iris/oauth/). Forwards code/state to the local dashboard only.
+(function () {
+  var CALLBACK = "http://localhost:8767/oauth/callback";
+  var q = new URLSearchParams(location.search);
+  var code = (q.get("code") || "").split("#")[0];
+  var state = q.get("state") || "";
+  var err = q.get("error_description") || q.get("error_reason") || q.get("error");
+  var out = new URLSearchParams();
+  if (err) { out.set("error", err); document.getElementById("t").textContent = "Authorization was cancelled"; document.getElementById("s").textContent = err; }
+  else if (code && /^[a-z0-9_-]+\.(threads|instagram)\.[A-Za-z0-9_-]+$/.test(state)) { out.set("code", code); out.set("state", state); }
+  else { document.getElementById("t").textContent = "Nothing to connect"; document.getElementById("s").textContent = "This page only handles account-connection redirects for Iris."; document.getElementById("m").textContent = ""; return; }
+  var url = CALLBACK + "?" + out.toString();
+  document.getElementById("go").href = url;
+  history.replaceState(null, "", location.pathname);  // drop the code from the address bar/history
+  location.replace(url);
+})();
+</script></body></html>
